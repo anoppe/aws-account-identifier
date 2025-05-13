@@ -1,0 +1,22 @@
+[
+  { "name": "Pastel Pink", "hex": "#FFD1DC" },
+  { "name": "Pastel Peach", "hex": "#FFDAB9" },
+  { "name": "Pastel Orange", "hex": "#FFB347" },
+  { "name": "Pastel Yellow", "hex": "#FFFFB3" },
+  { "name": "Pastel Green", "hex": "#B0F2B6" },
+  { "name": "Mint Green", "hex": "#AAF0D1" },
+  { "name": "Pastel Teal", "hex": "#B2F0E6" },
+  { "name": "Pastel Blue", "hex": "#AEC6CF" },
+  { "name": "Baby Blue", "hex": "#BFEFFF" },
+  { "name": "Powder Blue", "hex": "#B0E0E6" },
+  { "name": "Lavender Blue", "hex": "#E3E4FA" },
+  { "name": "Periwinkle", "hex": "#CCCCFF" },
+  { "name": "Pastel Purple", "hex": "#D1C0EB" },
+  { "name": "Mauve Mist", "hex": "#E0B0FF" },
+  { "name": "Thistle", "hex": "#D8BFD8" },
+  { "name": "Lilac", "hex": "#C8A2C8" },
+  { "name": "Pastel Gray", "hex": "#CFCFC4" },
+  { "name": "Light Beige", "hex": "#F5F5DC" },
+  { "name": "Pastel Brown", "hex": "#E6C3B1" },
+  { "name": "Soft White", "hex": "#FFF9F0" }
+]
