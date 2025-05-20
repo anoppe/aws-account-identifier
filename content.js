@@ -1,39 +1,25 @@
-console.log("Content script loaded on", window.location.href);
-// Default config
-const defaultConfig = {
-    526586384084: "Dev Account"
-}
-
-// Save config to storage
-function saveConfig(config) {
-    return browser.storage.local.set(config);
-}
-
-console.log("Page loaded");
+// This script runs in the context of the web page
+// apparently, the element that contains the account ID is lazily loaded.
 const intervalIdentifier = setInterval(() => {
     chrome.storage.local.get().then(accountsStorage => {
-        console.log("Config accounts:", accountsStorage);
         // Check if the page contains the AWS account ID
-        const match = document.body.innerText.match(/(\d{4}-\d{4}-\d{4})/);
+        const match = RegExp(/(\d{4}-\d{4}-\d{4})/).exec(document.body.innerText);
         const accountId = match ? match[0].replaceAll('-', '') : null;
-        console.log("Account ID found:", accountId);
 
         const account = accountsStorage.accounts.find(value => value.awsAccountId === accountId);
-        console.log("Account config:", account);
         if (account) {
-            console.log("account found in config!");
             clearInterval(intervalIdentifier);
         } else {
             return;
         }
+        // create a new div element to show the account ID
         const diffBox = document.createElement("div");
         diffBox.innerText = account.awsAccountLabel;
-        // const elementsByClassName = document.getElementsByClassName(".awsui-context-top-navigation");
-        // console.log(elementsByClassName);
-        // .style = `background-color: ${account.color}`;
+
         Object.assign(diffBox.style, {
             position: "fixed",
-            padding: "10 10 10 10",
+            padding: "10px 10px 10px 10px",
+            margin: "10px 10px 10px 10px",
             left: "50%",
             top: "10px",
             transform: "translate(-50%, -50%)",
@@ -44,6 +30,7 @@ const intervalIdentifier = setInterval(() => {
             whiteSpace: "pre-wrap",
         });
 
+        // append the new div to the top navigation bar
         document.querySelector(".awsui-context-top-navigation > header > nav > div").appendChild(diffBox);
     });
 
