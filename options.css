@@ -24,7 +24,6 @@ body {
     margin: 0 auto;
     background-color: var(--bg);
     border: 1px solid var(--border);
-    /*border-radius: 8px;*/
     padding: 2rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
@@ -49,7 +48,6 @@ select {
     background-color: var(--input-bg);
     color: var(--input-text);
     border: 1px solid var(--border);
-    /*border-radius: 4px;*/
     appearance: none;
 }
 
@@ -63,6 +61,16 @@ select {
     color: var(--button-text);
     border: 1px solid var(--border);
 }
+.accountsConfigurationTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: left;
+}
 
 .accountColor {
     /* inline div for color */
@@ -70,4 +78,7 @@ select {
     width: 20px;
     height: var(--block-line-height);
     background-color: red;
+}
+.accountColor:hover {
+    cursor: pointer;
 }

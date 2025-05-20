@@ -22,21 +22,34 @@ const preview = document.getElementById("preview");
 
 // list all accounts and colors from the config in the accountsConfigurations div
 chrome.storage.local.get("accounts").then((storedAccounts) => {
-    const accountsConfigurations = document.getElementById("accountsConfigurations");
+    const accountsConfigurations = document.getElementById("accountsConfigurationsBody");
     accountsConfigurations.innerHTML = ""; // Clear existing entries
-    storedAccounts.accounts.forEach(({ awsAccountId, color }) => {
+    storedAccounts.accounts.forEach(({ awsAccountId, awsAccountLabel, color }) => {
         console.log("Loading account:", awsAccountId, "with color:", color);
-        const entry = document.createElement("div");
-        entry.textContent = `AWS Account: ${awsAccountId}`;
-        const colorContainer = document.createElement("div");
-        colorContainer.classList.add("accountColor");
-        colorContainer.style.backgroundColor = color;
-        colorContainer.textContent = "-";
-        entry.appendChild(colorContainer);
-        accountsConfigurations.appendChild(entry);
+        addExistingAccount(awsAccountId, awsAccountLabel, color);
     });
 });
 
+// add event listener to the label input to update the preview with the entered label
+document.getElementById("awsAccountLabel").addEventListener("input", () => {
+    // update the preview with the entered label
+    const awsAccountLabel = document.getElementById("awsAccountLabel").value;
+    const preview = document.getElementById("preview");
+    preview.textContent = awsAccountLabel;
+})
+
+function addExistingAccount(awsAccountId, awsAccountLabel, color) {
+    const accountsConfigurations = document.getElementById("accountsConfigurationsBody");
+    // create a table row with the account id, label and color
+    accountsConfigurations.innerHTML += `
+        <tr>
+            <td>${awsAccountId}</td>
+            <td>${awsAccountLabel}</td>
+            <td style="background-color: ${color}; width: 50px;"></td>
+            <td><button id="remove" class="remove" data-id="${awsAccountId}">Remove</button></td>
+        </tr>
+    `;
+}
 
 // when the user clicks the save button, save the selected color to local storage and shown in the list
 document.getElementById("add").addEventListener("click", () => {
@@ -53,20 +66,15 @@ document.getElementById("add").addEventListener("click", () => {
             chrome.storage.local.set({ accounts });
 
             // Update the accounts configuration list
-            const accountsConfigurations = document.getElementById("accountsConfigurations");
+            addExistingAccount(awsAccountId, awsAccountLabel, color);
 
-            const entry = document.createElement("div");
-            entry.textContent = `AWS Account: ${awsAccountLabel} - ${awsAccountId}`;
-            const colorContainer = document.createElement("div");
-            colorContainer.classList.add("accountColor");
-            colorContainer.style.backgroundColor = color;
-            colorContainer.textContent = "-"
-            entry.appendChild(colorContainer)
-            // entry.style.backgroundColor = color;
-            accountsConfigurations.appendChild(entry);
-            // Clear the input field and persist config to storage
+            // Reset the input fields to empty
             document.getElementById("awsAccountId").value = "";
             document.getElementById("awsAccountLabel").value = "";
+            colorPicker.value = '';
+            preview.style.backgroundColor = '';
+
+            // store the updated accounts list.
             chrome.storage.local.set({ accounts });
             const newVar = chrome.storage.local.get().then(value => {
                 console.log("newVar", value);
@@ -76,3 +84,20 @@ document.getElementById("add").addEventListener("click", () => {
         });
     }
 });
+
+if (document.querySelector("#remove")) {
+    document.getElementById("remove").addEventListener("click", () => {
+        const removeButton = event.target;
+        const awsAccountId = removeButton.getAttribute("data-id");
+        console.log("Remove button clicked for account ID:", awsAccountId);
+
+        // Remove the account from local storage
+        chrome.storage.local.get("accounts").then(({ accounts }) => {
+            const updatedAccounts = accounts.filter(account => account.awsAccountId !== awsAccountId);
+            chrome.storage.local.set({ accounts: updatedAccounts });
+
+            // Remove the account from the UI
+            removeButton.closest("tr").remove();
+        });
+    });
+}
