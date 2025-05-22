@@ -1,33 +1,52 @@
 const colorPicker = document.getElementById("colorPicker");
 const preview = document.getElementById("preview");
-// fetch(chrome.runtime.getURL("colors.json"))
-//     .then(res => res.json())
-//     .then(colors => {
+// Load saved color
+chrome.storage.local.get("selectedColor", ({ selectedColor }) => {
+    if (selectedColor) {
+        colorPicker.value = selectedColor;
+        preview.style.backgroundColor = selectedColor;
+    }
+});
 
-        // Load saved color
-        chrome.storage.local.get("selectedColor", ({ selectedColor }) => {
-            if (selectedColor) {
-                colorPicker.value = selectedColor;
-                preview.style.backgroundColor = selectedColor;
-            }
-        });
+// Save on change
+colorPicker.addEventListener("change", () => {
+    const color = colorPicker.value;
+    chrome.storage.local.set({ selectedColor: color });
+    preview.style.backgroundColor = color;
+});
 
-        // Save on change
-        colorPicker.addEventListener("change", () => {
-            const color = colorPicker.value;
-            chrome.storage.local.set({ selectedColor: color });
-            preview.style.backgroundColor = color;
+function addRemoveEventListener(removeButton) {
+    console.log('new remove button to add', removeButton);
+    removeButton.addEventListener("click", (event) => {
+        const removeButton = event.target;
+        const awsAccountId = removeButton.getAttribute("data-id");
+        console.log("Remove button clicked for account ID:", awsAccountId);
+
+        // Remove the account from local storage
+        chrome.storage.local.get("accounts").then(({accounts}) => {
+            const updatedAccounts = accounts.filter(account => account.awsAccountId !== awsAccountId);
+            chrome.storage.local.set({accounts: updatedAccounts});
+
+            // Remove the account from the UI
+            removeButton.closest("tr").remove();
         });
-    // });
+    });
+}
 
 // list all accounts and colors from the config in the accountsConfigurations div
 chrome.storage.local.get("accounts").then((storedAccounts) => {
     const accountsConfigurations = document.getElementById("accountsConfigurationsBody");
     accountsConfigurations.innerHTML = ""; // Clear existing entries
-    storedAccounts.accounts.forEach(({ awsAccountId, awsAccountLabel, color }) => {
+    storedAccounts.accounts.forEach(({awsAccountId, awsAccountLabel, color}) => {
         console.log("Loading account:", awsAccountId, "with color:", color);
-        addExistingAccount(awsAccountId, awsAccountLabel, color);
+        addAccount(awsAccountId, awsAccountLabel, color);
     });
+
+    const removeButtons = document.getElementsByClassName('remove');
+    console.log(removeButtons);
+    for (const removeButton of removeButtons) {
+        addRemoveEventListener(removeButton);
+    }
 });
 
 // add event listener to the label input to update the preview with the entered label
@@ -36,9 +55,9 @@ document.getElementById("awsAccountLabel").addEventListener("input", () => {
     const awsAccountLabel = document.getElementById("awsAccountLabel").value;
     const preview = document.getElementById("preview");
     preview.textContent = awsAccountLabel;
-})
+});
 
-function addExistingAccount(awsAccountId, awsAccountLabel, color) {
+function addAccount(awsAccountId, awsAccountLabel, color) {
     const accountsConfigurations = document.getElementById("accountsConfigurationsBody");
     // create a table row with the account id, label and color
     accountsConfigurations.innerHTML += `
@@ -49,6 +68,9 @@ function addExistingAccount(awsAccountId, awsAccountLabel, color) {
             <td><button id="remove" class="remove" data-id="${awsAccountId}">Remove</button></td>
         </tr>
     `;
+    const removeButtonElements = accountsConfigurations.getElementsByClassName('remove');
+    const removeButtonElement = removeButtonElements[removeButtonElements.length - 1];
+    addRemoveEventListener(removeButtonElement);
 }
 
 // when the user clicks the save button, save the selected color to local storage and shown in the list
@@ -66,7 +88,7 @@ document.getElementById("add").addEventListener("click", () => {
             chrome.storage.local.set({ accounts });
 
             // Update the accounts configuration list
-            addExistingAccount(awsAccountId, awsAccountLabel, color);
+            addAccount(awsAccountId, awsAccountLabel, color);
 
             // Reset the input fields to empty
             document.getElementById("awsAccountId").value = "";
@@ -84,20 +106,3 @@ document.getElementById("add").addEventListener("click", () => {
         });
     }
 });
-
-if (document.querySelector("#remove")) {
-    document.getElementById("remove").addEventListener("click", () => {
-        const removeButton = event.target;
-        const awsAccountId = removeButton.getAttribute("data-id");
-        console.log("Remove button clicked for account ID:", awsAccountId);
-
-        // Remove the account from local storage
-        chrome.storage.local.get("accounts").then(({ accounts }) => {
-            const updatedAccounts = accounts.filter(account => account.awsAccountId !== awsAccountId);
-            chrome.storage.local.set({ accounts: updatedAccounts });
-
-            // Remove the account from the UI
-            removeButton.closest("tr").remove();
-        });
-    });
-}
