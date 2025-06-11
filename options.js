@@ -16,6 +16,9 @@ colorPicker.addEventListener('change', () => {
 });
 
 document.addEventListener('click', (event) => {
+    if (event.target.tagName.toLowerCase() !== 'button' || !event.target.classList.contains('remove')) {
+        return; // Exit if the clicked element is not a remove button
+    }
     console.log('Remove button clicked', event);
     const removeButton = event.target;
     const awsAccountId = removeButton.getAttribute('data-id');
