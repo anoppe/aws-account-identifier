@@ -61,13 +61,6 @@ const intervalIdentifier = setInterval(() => {
             styleDefinition.border = 'none';
         }
 
-        browser.theme.update({
-            colors: {
-                frame: `${account.color}`,
-                tab_background_text: `${account.color}`,
-            }
-        });
-
         Object.assign(diffBox.style, styleDefinition);
 
         // append the new div to the top navigation bar
