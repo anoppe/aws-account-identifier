@@ -13,6 +13,18 @@ function getCookie(name) {
     throw new Error("Cannot find cookie ${name}");
 }
 
+function contrastingColor(hex, factorAlpha=false) {
+    let [r,g,b,a]=hex.replace(/^#?(?:(?:(..)(..)(..)(..)?)|(?:(.)(.)(.)(.)?))$/, '$1$5$5$2$6$6$3$7$7$4$8$8').match(/(..)/g).map(rgb=>parseInt('0x'+rgb));
+    return ((~~(r*299) + ~~(g*587) + ~~(b*114))/1000) >= 128 || (!!(~(128/a) + 1) && factorAlpha) ? '#000' : '#FFF';   
+}
+
+function overrideTextColor(element, color) {
+    element.style.color = color;
+    for(var i = 0; i < element.children.length; i++){
+        overrideTextColor(element.children[i], color);
+    }
+}
+
 const intervalIdentifier = setInterval(() => {
 
     chrome.storage.local.get().then(accountsStorage => {
@@ -40,6 +52,7 @@ const intervalIdentifier = setInterval(() => {
         // create a new div element to show the account ID
         const diffBox = document.createElement("div");
         diffBox.innerText = account.awsAccountLabel;
+        const contrastColor = contrastingColor(account.color);
 
         const styleDefinition = {
             position: "fixed",
@@ -53,10 +66,12 @@ const intervalIdentifier = setInterval(() => {
             border: "1px solid #ccc",
             fontFamily: "monospace",
             whiteSpace: "pre-wrap",
+            color: `${contrastColor}`
         }
 
         if (account.colorizeWholeWith) {
             document.getElementById('awsc-top-level-nav').style.backgroundColor = account.color;
+            overrideTextColor(document.getElementById('awsc-top-level-nav'), contrastColor);
             styleDefinition.backgroundColor = 'transparent';
             styleDefinition.border = 'none';
         }
