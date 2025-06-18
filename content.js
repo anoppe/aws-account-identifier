@@ -20,27 +20,28 @@ function contrastingColor(hex, factorAlpha=false) {
 
 function overrideTextColor(element, color) {
     element.style.color = color;
-    for(var i = 0; i < element.children.length; i++){
-        overrideTextColor(element.children[i], color);
+    for(let child of element.children) {
+        overrideTextColor(child, color);
     }
 }
 
-const intervalIdentifier = setInterval(() => {
+function readAccountId() {
+    try {
+        const awsUserInfoCookieValue = getCookie('aws-userInfo');
+        const parsedAwsUserInfoCookie = JSON.parse(awsUserInfoCookieValue);
+        return parsedAwsUserInfoCookie['alias'];
+    } catch (error) {
+        console.log('aws-userInfo cookie not found, trying to find the account id on the page itself', error.message);
+        // Check if the page contains the AWS account ID
+        const match = RegExp(/(\d{4}-\d{4}-\d{4})/).exec(document.body.innerText);
+        return match ? match[0].replaceAll('-', '') : null;
+    }
+}
 
+function renderAccountElement() {
     chrome.storage.local.get().then(accountsStorage => {
 
-        let accountId;
-
-        try {
-            const awsUserInfoCookieValue = getCookie('aws-userInfo');
-            const parsedAwsUserInfoCookie = JSON.parse(awsUserInfoCookieValue);
-            accountId = parsedAwsUserInfoCookie['alias'];
-        } catch (error) {
-            console.log('aws-userInfo cookie not found', error.message);
-            // Check if the page contains the AWS account ID
-            const match = RegExp(/(\d{4}-\d{4}-\d{4})/).exec(document.body.innerText);
-            accountId = match ? match[0].replaceAll('-', '') : null;
-        }
+        const accountId = readAccountId();
 
         if (accountId) {
             clearInterval(intervalIdentifier);
@@ -81,6 +82,18 @@ const intervalIdentifier = setInterval(() => {
         // append the new div to the top navigation bar
         document.querySelector(".awsui-context-top-navigation > header > nav > div").appendChild(diffBox);
     });
+}
+
+/** Set an interval to check for the account ID and render the element.
+ * If the account ID is not found, it will keep trying until it is found.
+ * this is necessary because the page might not be fully loaded when this script runs.
+ */
+const intervalIdentifier = setInterval(() => {
+    try {
+        renderAccountElement();
+    } catch (e) {
+        console.log('something went wrong while rendering the account element:', e.message);
+    }
 
 }, 1000);
 
