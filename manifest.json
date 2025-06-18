@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
   "name": "AWS Account Identifier",
-  "version": "1.0",
+  "version": "0.0.3",
   "description": "A browser extension to identify AWS accounts by their name and colors.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "aws-account-identifier@nopppe.nl",
+      "strict_min_version": "139.0"
+    }
+  },
   "options_ui": {
     "page": "options.html"
   },
