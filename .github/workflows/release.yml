@@ -1,7 +1,7 @@
 name: Package and Release
 
-#on:
-#  push:
+on:
+  push:
 #    tags:
 #      - 'v*' # Trigger on version tags like v1.0.0
 
