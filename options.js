@@ -34,36 +34,6 @@ document.addEventListener('click', (event) => {
     });
 });
 
-document.getElementById('settingsImport').addEventListener('change', (event) => {
-    const files = event.target.files; // Access the selected files
-    console.log('Selected file:', files[0]);
-    if (files.length > 0) {
-        const file = files[0];
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                console.log('Parsed data:', data);
-                if (data.accounts && Array.isArray(data.accounts)) {
-                    // Save the imported accounts to local storage
-                    chrome.storage.local.set({accounts: data.accounts}, () => {
-                        console.log('Accounts imported successfully');
-                        renderAllAccountsFromStorage(data);
-                    });
-                } else {
-                    console.error('Invalid data format. Expected an object with an "accounts" array.');
-                }
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-            }
-        };
-
-        reader.readAsText(file);
-    }
-
-});
-
 function addAccount(awsAccountId, awsAccountLabel, color) {
     const accountsConfigurations = document.getElementById('accountsConfigurationsBody');
     // create a table row with the account id, label and color
@@ -85,6 +55,30 @@ function renderAllAccountsFromStorage(storedAccounts) {
         console.log('Loading account:', awsAccountId, 'with color:', color);
         addAccount(awsAccountId, awsAccountLabel, color);
     });
+}
+
+function validateDataStructure(data) {
+    if (typeof data !== 'object' || data === null) {
+        return { valid: false, message: 'Invalid data format. Expected an object.' };
+    }
+
+    if (!Array.isArray(data.accounts)) {
+        return { valid: false, message: 'Invalid data format. Expected "accounts" to be an array.' };
+    }
+
+    for (const account of data.accounts) {
+        if (typeof account.awsAccountId !== 'string' || !account.awsAccountId.trim()) {
+            return { valid: false, message: 'Each account must have a valid "awsAccountId".' };
+        }
+        if (typeof account.awsAccountLabel !== 'string' || !account.awsAccountLabel.trim()) {
+            return { valid: false, message: 'Each account must have a valid "awsAccountLabel".' };
+        }
+        if (typeof account.color !== 'string' || !/^#[0-9A-Fa-f]{6}$/.test(account.color)) {
+            return { valid: false, message: 'Each account must have a valid "color" in hex format.' };
+        }
+    }
+
+    return { valid: true, message: 'Data structure is valid.' };
 }
 
 try {
@@ -138,6 +132,42 @@ document.getElementById('add').addEventListener('click', () => {
             console.log('Updated the account storage with the new changes.', storageResult)
         });
     }
+});
+
+document.getElementById('settingsImport').addEventListener('change', (event) => {
+    const files = event.target.files; // Access the selected files
+    console.log('Selected file:', files[0]);
+    if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                // validate the data structure.
+                const validationResult = validateDataStructure(data);
+                if (!validationResult.valid) {
+                    alert("The uploaded file doesn't have the expected data structure.\n" + validationResult.message);
+                    return;
+                }
+                console.log('Parsed data:', data);
+                if (data.accounts && Array.isArray(data.accounts)) {
+                    // Save the imported accounts to local storage
+                    chrome.storage.local.set({accounts: data.accounts}, () => {
+                        console.log('Accounts imported successfully');
+                        renderAllAccountsFromStorage(data);
+                    });
+                } else {
+                    console.error('Invalid data format. Expected an object with an "accounts" array.');
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
 });
 
 document.getElementById("settingsExport").addEventListener("click", () => {
