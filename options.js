@@ -34,6 +34,36 @@ document.addEventListener('click', (event) => {
     });
 });
 
+document.getElementById('settingsImport').addEventListener('change', (event) => {
+    const files = event.target.files; // Access the selected files
+    console.log('Selected file:', files[0]);
+    if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                console.log('Parsed data:', data);
+                if (data.accounts && Array.isArray(data.accounts)) {
+                    // Save the imported accounts to local storage
+                    chrome.storage.local.set({accounts: data.accounts}, () => {
+                        console.log('Accounts imported successfully');
+                        renderAllAccountsFromStorage(data);
+                    });
+                } else {
+                    console.error('Invalid data format. Expected an object with an "accounts" array.');
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+});
+
 function addAccount(awsAccountId, awsAccountLabel, color) {
     const accountsConfigurations = document.getElementById('accountsConfigurationsBody');
     // create a table row with the account id, label and color
@@ -108,4 +138,27 @@ document.getElementById('add').addEventListener('click', () => {
             console.log('Updated the account storage with the new changes.', storageResult)
         });
     }
+});
+
+document.getElementById("settingsExport").addEventListener("click", () => {
+    // turn your settings into a JSON string
+    chrome.storage.local.get().then(({accounts = []}) => {
+
+        const dataStr = JSON.stringify(accounts, null, 4);
+
+        // make a Blob
+        const blob = new Blob([dataStr], {type: "application/json"});
+
+        // create a link to download it
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "plugin-settings.json";
+
+        // trigger download
+        a.click();
+
+        // cleanup
+        URL.revokeObjectURL(url);
+    });
 });

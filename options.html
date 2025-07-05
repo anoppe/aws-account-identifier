@@ -10,6 +10,18 @@
 </head>
 <body>
 <div class="container">
+    <div style="display: flex; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+        <div style="width: 50%;">
+            <label for="settingsExport" class="label">Export settings</label>
+            <button id="settingsExport">Export</button>
+        </div>
+        <div style="padding-left: 10px;">
+            <label
+                for="settingsImport"
+                class="label">Import settings</label>
+            <input id="settingsImport" type="file" />
+        </div>
+    </div>
     <label
         for="awsAccountId"
         class="label">Enter your AWS Account ID</label>
@@ -30,7 +42,7 @@
     <div id="preview">Preview</div>
     <button id="add">Add</button>
 </div>
-<table id="accountsConfigurations" class="accountsConfigurationTable" >
+<table id="accountsConfigurations" class="accountsConfigurationTable">
 <thead>
     <tr>
         <th>Account ID</th>
