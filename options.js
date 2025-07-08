@@ -141,8 +141,10 @@ document.getElementById('settingsImportButton').addEventListener('click', (event
         return;
     }
 
-    const files = event.target.files; // Access the selected files
-    console.log('Selected file:', files[0]);
+    const fileInput = document.getElementById('settingsImport');
+    const files = fileInput.files;
+
+    console.log('Selected file:', files);
     if (files.length > 0) {
         const file = files[0];
         const reader = new FileReader();
