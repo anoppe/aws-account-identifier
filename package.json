@@ -1,0 +1,27 @@
+{
+  "name": "aws-account-identifier",
+  "version": "1.0.0",
+  "description": "A browser extension for identifying AWS accounts.",
+  "scripts": {
+    "test": "jest",
+    "start": "node __test__/options.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^30.0.4"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "clover"
+    ]
+  }
+}

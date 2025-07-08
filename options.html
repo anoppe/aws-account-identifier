@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Pastel Color Selector</title>
+    <title>AWS Account Identifier Options page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="options.css" />
     <link rel="stylesheet" href="coloris.min.css"/>
@@ -10,51 +10,58 @@
 </head>
 <body>
 <div class="container">
-    <div style="display: flex; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-        <div style="width: 50%;">
-            <label for="settingsExport" class="label">Export settings</label>
-            <button id="settingsExport">Export</button>
-        </div>
-        <div style="padding-left: 10px;">
-            <label
-                for="settingsImport"
-                class="label">Import settings</label>
-            <input id="settingsImport" type="file" accept=".json" />
-        </div>
+    <div class="form-row">
+        <label for="settingsExport" class="label">Export settings</label>
+        <button id="settingsExport">Export</button>
     </div>
-    <label
-        for="awsAccountId"
-        class="label">Enter your AWS Account ID</label>
-    <input id="awsAccountId" type="text" />
-    <label
-        for="awsAccountLabel"
-        class="label">Enter your AWS Account Label</label>
-    <input id="awsAccountLabel" type="text" />
-    <label for="colorizeWholeWith" class="label" title="Feature specifically requested by my friend Koen">
-        Colorize the whole with of the Navigation Bar
-        <input type="checkbox" id="colorizeWholeWith">
-    </label>
-    <label
-        for="colorPicker"
-        id="colorLabel"
-        class="label">Select your color</label>
-    <input id="colorPicker" type="text" data-coloris>
-    <div id="preview">Preview</div>
-    <button id="add">Add</button>
+    <div class="form-row import-row">
+        <label for="settingsImport" class="label">Import settings</label>
+        <input id="settingsImport" type="file" accept=".json" />
+        <button id="settingsImportButton">Import</button>
+    </div>
+    <div class="form-row">
+        <label for="awsAccountId" class="label">Enter your AWS Account ID</label>
+        <input id="awsAccountId" type="text" />
+    </div>
+    <div class="form-row">
+        <label for="awsAccountLabel" class="label">Enter your AWS Account Label</label>
+        <input id="awsAccountLabel" type="text" />
+    </div>
+    <div class="form-row checkbox-row">
+        <label for="colorizeWholeWidth" class="label" title="Feature specifically requested by my friend Koen">
+            Colorize the whole width of the Navigation Bar
+        </label>
+        <input type="checkbox" id="colorizeWholeWidth" />
+    </div>
+    <div class="form-row">
+        <label for="colorPicker" id="colorLabel" class="label">Select your color</label>
+        <input id="colorPicker" type="text" data-coloris />
+    </div>
+    <div class="form-row preview-row">
+        <div id="preview">Preview</div>
+    </div>
+    <div class="form-row preview-row">
+        <button id="add">Save configuration</button>
+    </div>
 </div>
-<table id="accountsConfigurations" class="accountsConfigurationTable">
-<thead>
-    <tr>
-        <th>Account ID</th>
-        <th>Account Label</th>
-        <th>Color</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody id="accountsConfigurationsBody">
-    <!-- Rows will be added here dynamically -->
-    </tbody>
-</table>
+
+<div class="container">
+    <table id="accountsConfigurations" class="accountsConfigurationTable">
+        <thead>
+        <tr>
+            <th>Account ID</th>
+            <th>Account Label</th>
+            <th>Color</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="accountsConfigurationsBody">
+        <!-- Rows will be added here dynamically -->
+        </tbody>
+    </table>
+
+</div>
+
 <script src="options.js"></script>
 </body>
 </html>

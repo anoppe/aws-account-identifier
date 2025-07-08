@@ -3,7 +3,7 @@
     {
       "awsAccountId" : "1234567890123",
       "awsAccountLabel" : "MY TEST ACCOUNT",
-      "colorizeWholeWith": true,
+      "colorizeWholeWidth": true,
       "color" : "#FF5733"
     }
   ]

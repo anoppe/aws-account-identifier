@@ -104,14 +104,14 @@ document.getElementById('add').addEventListener('click', () => {
     const color = colorPicker.value;
     const awsAccountId = document.getElementById('awsAccountId').value;
     const awsAccountLabel = document.getElementById('awsAccountLabel').value;
-    const colorizeWholeWith = document.getElementById('colorizeWholeWith').checked;
+    const colorizeWholeWidth = document.getElementById('colorizeWholeWidth').checked;
 
     if (awsAccountId) {
         // Save the selected color and AWS Account ID to local storage
         chrome.storage.local.get().then(({accounts = []}) => {
             console.log('accounts fetched:', accounts);
             const filteredAccounts = accounts.filter(account => account.awsAccountId !== awsAccountId); // Remove existing account with the same ID
-            filteredAccounts.push({awsAccountId, color, awsAccountLabel, colorizeWholeWith});
+            filteredAccounts.push({awsAccountId, color, awsAccountLabel, colorizeWholeWidth});
             const filteredAccountsStorageObject = {accounts: filteredAccounts};
             chrome.storage.local.set(filteredAccountsStorageObject);
 
@@ -134,7 +134,13 @@ document.getElementById('add').addEventListener('click', () => {
     }
 });
 
-document.getElementById('settingsImport').addEventListener('change', (event) => {
+document.getElementById('settingsImportButton').addEventListener('click', (event) => {
+
+    const result = confirm('Are you sure you want to import settings? This will overwrite your current settings.');
+    if (!result) {
+        return;
+    }
+
     const files = event.target.files; // Access the selected files
     console.log('Selected file:', files[0]);
     if (files.length > 0) {
@@ -144,6 +150,7 @@ document.getElementById('settingsImport').addEventListener('change', (event) => 
         reader.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
+                console.log('data', data);
                 // validate the data structure.
                 const validationResult = validateDataStructure(data);
                 if (!validationResult.valid) {
