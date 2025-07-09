@@ -183,7 +183,7 @@ document.getElementById("settingsExport").addEventListener("click", () => {
     // turn your settings into a JSON string
     chrome.storage.local.get().then(({accounts = []}) => {
 
-        const dataStr = JSON.stringify(accounts, null, 4);
+        const dataStr = JSON.stringify({accounts: accounts}, null, 4);
 
         // make a Blob
         const blob = new Blob([dataStr], {type: "application/json"});
