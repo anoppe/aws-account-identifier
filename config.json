@@ -1,7 +1,9 @@
 {
   "accounts": [
     {
-      "awsAccountId" : "123456789012",
+      "awsAccountId" : "1234567890123",
+      "awsAccountLabel" : "MY TEST ACCOUNT",
+      "colorizeWholeWidth": true,
       "color" : "#FF5733"
     }
   ]

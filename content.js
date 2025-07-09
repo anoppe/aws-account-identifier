@@ -70,7 +70,7 @@ function renderAccountElement() {
             color: `${contrastColor}`
         }
 
-        if (account.colorizeWholeWith) {
+        if (account.colorizeWholeWidth) {
             document.getElementById('awsc-top-level-nav').style.backgroundColor = account.color;
             overrideTextColor(document.getElementById('awsc-top-level-nav'), contrastColor);
             styleDefinition.backgroundColor = 'transparent';
