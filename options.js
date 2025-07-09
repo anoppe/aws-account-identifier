@@ -136,16 +136,16 @@ document.getElementById('add').addEventListener('click', () => {
 
 document.getElementById('settingsImportButton').addEventListener('click', (event) => {
 
-    const result = confirm('Are you sure you want to import settings? This will overwrite your current settings.');
-    if (!result) {
-        return;
-    }
-
     const fileInput = document.getElementById('settingsImport');
     const files = fileInput.files;
 
     console.log('Selected file:', files);
     if (files.length > 0) {
+        const result = confirm('Are you sure you want to import settings? This will overwrite your current settings.');
+        if (!result) {
+            return;
+        }
+
         const file = files[0];
         const reader = new FileReader();
 
@@ -175,6 +175,8 @@ document.getElementById('settingsImportButton').addEventListener('click', (event
         };
 
         reader.readAsText(file);
+    } else {
+        alert('Please select a file to import.');
     }
 
 });
