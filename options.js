@@ -57,6 +57,30 @@ function renderAllAccountsFromStorage(storedAccounts) {
     });
 }
 
+function validateDataStructure(data) {
+    if (typeof data !== 'object' || data === null) {
+        return { valid: false, message: 'Invalid data format. Expected an object.' };
+    }
+
+    if (!Array.isArray(data.accounts)) {
+        return { valid: false, message: 'Invalid data format. Expected "accounts" to be an array.' };
+    }
+
+    for (const account of data.accounts) {
+        if (typeof account.awsAccountId !== 'string' || !account.awsAccountId.trim()) {
+            return { valid: false, message: 'Each account must have a valid "awsAccountId".' };
+        }
+        if (typeof account.awsAccountLabel !== 'string' || !account.awsAccountLabel.trim()) {
+            return { valid: false, message: 'Each account must have a valid "awsAccountLabel".' };
+        }
+        if (typeof account.color !== 'string' || !/^#[0-9A-Fa-f]{6}$/.test(account.color)) {
+            return { valid: false, message: 'Each account must have a valid "color" in hex format.' };
+        }
+    }
+
+    return { valid: true, message: 'Data structure is valid.' };
+}
+
 try {
     chrome.storage.local.get('accounts').then((storedAccounts) => {
         console.log(storedAccounts);
@@ -80,14 +104,14 @@ document.getElementById('add').addEventListener('click', () => {
     const color = colorPicker.value;
     const awsAccountId = document.getElementById('awsAccountId').value;
     const awsAccountLabel = document.getElementById('awsAccountLabel').value;
-    const colorizeWholeWith = document.getElementById('colorizeWholeWith').checked;
+    const colorizeWholeWidth = document.getElementById('colorizeWholeWidth').checked;
 
     if (awsAccountId) {
         // Save the selected color and AWS Account ID to local storage
         chrome.storage.local.get().then(({accounts = []}) => {
             console.log('accounts fetched:', accounts);
             const filteredAccounts = accounts.filter(account => account.awsAccountId !== awsAccountId); // Remove existing account with the same ID
-            filteredAccounts.push({awsAccountId, color, awsAccountLabel, colorizeWholeWith});
+            filteredAccounts.push({awsAccountId, color, awsAccountLabel, colorizeWholeWidth});
             const filteredAccountsStorageObject = {accounts: filteredAccounts};
             chrome.storage.local.set(filteredAccountsStorageObject);
 
@@ -108,4 +132,74 @@ document.getElementById('add').addEventListener('click', () => {
             console.log('Updated the account storage with the new changes.', storageResult)
         });
     }
+});
+
+document.getElementById('settingsImportButton').addEventListener('click', (event) => {
+
+    const fileInput = document.getElementById('settingsImport');
+    const files = fileInput.files;
+
+    console.log('Selected file:', files);
+    if (files.length > 0) {
+        const result = confirm('Are you sure you want to import settings? This will overwrite your current settings.');
+        if (!result) {
+            return;
+        }
+
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                console.log('data', data);
+                // validate the data structure.
+                const validationResult = validateDataStructure(data);
+                if (!validationResult.valid) {
+                    alert("The uploaded file doesn't have the expected data structure.\n" + validationResult.message);
+                    return;
+                }
+                console.log('Parsed data:', data);
+                if (data.accounts && Array.isArray(data.accounts)) {
+                    // Save the imported accounts to local storage
+                    chrome.storage.local.set({accounts: data.accounts}, () => {
+                        console.log('Accounts imported successfully');
+                        renderAllAccountsFromStorage(data);
+                    });
+                } else {
+                    console.error('Invalid data format. Expected an object with an "accounts" array.');
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        };
+
+        reader.readAsText(file);
+    } else {
+        alert('Please select a file to import.');
+    }
+
+});
+
+document.getElementById("settingsExport").addEventListener("click", () => {
+    // turn your settings into a JSON string
+    chrome.storage.local.get().then(({accounts = []}) => {
+
+        const dataStr = JSON.stringify({accounts: accounts}, null, 4);
+
+        // make a Blob
+        const blob = new Blob([dataStr], {type: "application/json"});
+
+        // create a link to download it
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "plugin-settings.json";
+
+        // trigger download
+        a.click();
+
+        // cleanup
+        URL.revokeObjectURL(url);
+    });
 });
